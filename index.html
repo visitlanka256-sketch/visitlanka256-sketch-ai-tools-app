@@ -76,8 +76,9 @@
 <div class="container">
 
   <textarea id="prompt" placeholder="ඔබට අවශ්‍ය විෂයය මෙහි ලියන්න..."></textarea>
+<button onclick="generateCaption()">Generate Caption</button>
+<button onclick="generateTags()">Generate Tags & Description</button>
 
-  <button onclick="generateText()">Generate Sinhala Caption</button>
 
   <div class="output" id="result">👉 Result මෙතන දිස්වේ...</div>
 
@@ -88,27 +89,43 @@
 </footer>
 
 <script>
-function generateText() {
-  const input = document.getElementById("prompt").value;
+const API_URL = "https://sinhala-ai-api.visitlanka256.workers.dev/";
 
-  if (input.trim() === "") {
-    alert("කරුණාකර විෂයයක් ලියන්න");
-    return;
-  }
+async function generateCaption() {
+  callAI("caption");
+}
 
-  const sample = [
-    "💙 හදවතට ලං වෙන සිංහල සිතුවිල්ලක්",
-    "✨ ජීවිතය ලස්සන වෙන්නේ හිත හොඳ වෙද්දි",
-    "🌸 සිනාවක් තියෙන තැන සතුට තියෙනවා",
-    "🔥 අද දවස වෙනස් කරන්න ඔබට පුළුවන්"
-  ];
+async function generateTags() {
+  callAI("tags");
+}
 
-  const randomText = sample[Math.floor(Math.random() * sample.length)];
+async function callAI(type) {
+  const text = document.getElementById("prompt").value;
+  if (!text) return alert("Text එකක් ලියන්න");
 
-  document.getElementById("result").innerText =
-    "Topic: " + input + "\n\n" + randomText;
+  document.getElementById("result").innerText = "⏳ Generating...";
+
+  const res = await fetch(API_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text, type })
+  });
+
+  const data = await res.json();
+  document.getElementById("result").innerText = data.result;
 }
 </script>
+<button onclick="speak()">🔊 Sinhala Voice</button>
+
+<script>
+function speak() {
+  const text = document.getElementById("result").innerText;
+  const msg = new SpeechSynthesisUtterance(text);
+  msg.lang = "si-LK";
+  speechSynthesis.speak(msg);
+}
+</script>
+
 
 </body>
 </html>
