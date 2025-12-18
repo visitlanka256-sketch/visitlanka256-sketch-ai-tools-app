@@ -6,64 +6,84 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f5f7fb;
-      margin: 0;
-      padding: 0;
-    }
+* {
+  box-sizing: border-box;
+}
 
-    header {
-      background: #4f46e5;
-      color: white;
-      padding: 20px;
-      text-align: center;
-    }
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg,#4f46e5,#9333ea);
+  min-height: 100vh;
+  color: #111;
+}
 
-    .container {
-      padding: 20px;
-      max-width: 600px;
-      margin: auto;
-    }
+header {
+  padding: 25px;
+  text-align: center;
+  color: white;
+}
 
-    textarea {
-      width: 100%;
-      height: 120px;
-      padding: 10px;
-      font-size: 16px;
-      margin-bottom: 15px;
-    }
+header h1 {
+  margin: 0;
+  font-size: 26px;
+}
 
-    button {
-      width: 100%;
-      padding: 12px;
-      font-size: 16px;
-      background: #4f46e5;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
+header p {
+  opacity: 0.9;
+}
 
-    button:hover {
-      background: #4338ca;
-    }
+.container {
+  background: white;
+  max-width: 500px;
+  margin: -20px auto 30px;
+  padding: 20px;
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+}
 
-    .output {
-      margin-top: 20px;
-      background: white;
-      padding: 15px;
-      border-radius: 5px;
-      white-space: pre-wrap;
-    }
+textarea {
+  width: 100%;
+  height: 110px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  padding: 12px;
+  font-size: 16px;
+}
 
-    footer {
-      text-align: center;
-      padding: 10px;
-      font-size: 14px;
-      color: #666;
-    }
-  </style>
+button {
+  width: 100%;
+  margin-top: 10px;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  background: #4f46e5;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #4338ca;
+}
+
+.output {
+  margin-top: 15px;
+  padding: 15px;
+  border-radius: 12px;
+  background: #f1f5f9;
+  min-height: 80px;
+  white-space: pre-wrap;
+}
+
+footer {
+  text-align: center;
+  color: white;
+  opacity: 0.8;
+  font-size: 13px;
+}
+</style>
+
 </head>
 
 <body>
@@ -78,6 +98,10 @@
   <textarea id="prompt" placeholder="ඔබට අවශ්‍ය විෂයය මෙහි ලියන්න..."></textarea>
 <button onclick="generateCaption()">Generate Caption</button>
 <button onclick="generateTags()">Generate Tags & Description</button>
+<button onclick="generateCaption()">📝 Generate Caption</button>
+<button onclick="generateTags()">🏷️ Generate Tags</button>
+<button onclick="speak()">🔊 Play Sinhala Voice</button>
+<button onclick="downloadMP3()">⬇️ Download MP3</button>
 
 
   <div class="output" id="result">👉 Result මෙතන දිස්වේ...</div>
@@ -114,6 +138,44 @@ async function callAI(type) {
   const data = await res.json();
   document.getElementById("result").innerText = data.result;
 }
+  let audioBlob;
+
+function speak() {
+  const text = document.getElementById("result").innerText;
+  if (!text) return alert("Text නැහැ");
+
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = "si-LK";
+
+  const audioCtx = new AudioContext();
+  const destination = audioCtx.createMediaStreamDestination();
+  const mediaRecorder = new MediaRecorder(destination.stream);
+  mediaRecorder.start();
+
+  utterance.onend = () => {
+    mediaRecorder.stop();
+  };
+
+  mediaRecorder.ondataavailable = e => {
+    audioBlob = new Blob([e.data], { type: "audio/mp3" });
+  };
+
+  speechSynthesis.speak(utterance);
+}
+
+function downloadMP3() {
+  if (!audioBlob) {
+    alert("පළමුව Voice Play කරන්න");
+    return;
+  }
+
+  const url = URL.createObjectURL(audioBlob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "sinhala-voice.mp3";
+  a.click();
+}
+
 </script>
 <button onclick="speak()">🔊 Sinhala Voice</button>
 
