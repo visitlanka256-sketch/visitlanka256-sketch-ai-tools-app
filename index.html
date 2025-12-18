@@ -21,8 +21,7 @@
     .container {
       background: white; max-width: 600px;
       margin: -20px auto 30px; padding: 20px;
-      border-radius: 20px;
-      box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+      border-radius: 20px; box-shadow: 0 15px 30px rgba(0,0,0,0.2);
     }
     textarea {
       width: 100%; height: 110px;
@@ -72,7 +71,7 @@
 <script>
 let audioBlob;
 
-// API (Cloudflare Worker) URL ✨ change this
+// API backend
 const API_URL = "https://sinhala-ai-api.visitlanka256.workers.dev/";
 
 async function callAI(type) {
@@ -80,6 +79,7 @@ async function callAI(type) {
   if (!text) return alert("Text එකක් ලියන්න");
 
   document.getElementById("result").innerText = "⏳ Generating...";
+
   const res = await fetch(API_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -93,10 +93,9 @@ async function callAI(type) {
 function generateCaption() { callAI("caption"); }
 function generateTags() { callAI("tags"); }
 
-// Voice Play & MP3
 function speak() {
   const txt = document.getElementById("result").innerText;
-  if (!txt) return alert("First generate result");
+  if (!txt) return alert("පළමුව result generate කරන්න");
   const utt = new SpeechSynthesisUtterance(txt);
   utt.lang = "si-LK";
   speechSynthesis.speak(utt);
