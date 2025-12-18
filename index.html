@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Sinhala Tools App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7fb;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background: #4f46e5;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .container {
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+    }
+
+    textarea {
+      width: 100%;
+      height: 120px;
+      padding: 10px;
+      font-size: 16px;
+      margin-bottom: 15px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      background: #4f46e5;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #4338ca;
+    }
+
+    .output {
+      margin-top: 20px;
+      background: white;
+      padding: 15px;
+      border-radius: 5px;
+      white-space: pre-wrap;
+    }
+
+    footer {
+      text-align: center;
+      padding: 10px;
+      font-size: 14px;
+      color: #666;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>🤖 AI Sinhala Tools</h1>
+  <p>සිංහල Caption / Idea Generator</p>
+</header>
+
+<div class="container">
+
+  <textarea id="prompt" placeholder="ඔබට අවශ්‍ය විෂයය මෙහි ලියන්න..."></textarea>
+
+  <button onclick="generateText()">Generate Sinhala Caption</button>
+
+  <div class="output" id="result">👉 Result මෙතන දිස්වේ...</div>
+
+</div>
+
+<footer>
+  © 2025 VisitLanka256 Sketch
+</footer>
+
+<script>
+function generateText() {
+  const input = document.getElementById("prompt").value;
+
+  if (input.trim() === "") {
+    alert("කරුණාකර විෂයයක් ලියන්න");
+    return;
+  }
+
+  const sample = [
+    "💙 හදවතට ලං වෙන සිංහල සිතුවිල්ලක්",
+    "✨ ජීවිතය ලස්සන වෙන්නේ හිත හොඳ වෙද්දි",
+    "🌸 සිනාවක් තියෙන තැන සතුට තියෙනවා",
+    "🔥 අද දවස වෙනස් කරන්න ඔබට පුළුවන්"
+  ];
+
+  const randomText = sample[Math.floor(Math.random() * sample.length)];
+
+  document.getElementById("result").innerText =
+    "Topic: " + input + "\n\n" + randomText;
+}
+</script>
+
+</body>
+</html>
