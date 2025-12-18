@@ -115,6 +115,41 @@ function downloadMP3() {
   a.href = url; a.download = "sinhala-voice.mp3"; a.click();
 }
 </script>
+<script>
+async function generateCaption() {
+  const inputText = document.getElementById("userText").value;
+  const outputBox = document.getElementById("result");
+
+  if (!inputText) {
+    alert("සිංහල text එකක් දාන්න");
+    return;
+  }
+
+  outputBox.innerText = "Generating...";
+
+  try {
+    const response = await fetch("https://sinhala-ai-api.visitlanka256.workers.dev/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        text: inputText,
+        type: "caption"
+      })
+    });
+
+    const data = await response.json();
+    outputBox.innerText = data.result || "No response";
+
+  } catch (error) {
+    outputBox.innerText = "Error connecting to AI";
+    console.error(error);
+  }
+}
+</script>
+
+  
 
 </body>
 </html>
