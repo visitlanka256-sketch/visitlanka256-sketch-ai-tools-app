@@ -124,30 +124,33 @@ const API_URL="https://visitlanka256-sketch-ai-tools-app.visitlanka256.workers.d
 let audio=null;
 
 async function generate(type){
-  const text=prompt.value.trim();
-  const voice=document.getElementById("voice").value;
-  if(!text) return alert("Text එකක් ලියන්න");
+  const text = document.getElementById("prompt").value.trim();
 
-  result.innerText="⏳ Generating...";
-
-  try{
-    const res=await fetch(API_URL,{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({text,type,voice})
-    });
-
-    const data=await res.json();
-    result.innerText=data.text;
-
-    const bytes=Uint8Array.from(atob(data.mp3),c=>c.charCodeAt(0));
-    const blob=new Blob([bytes],{type:"audio/mp3"});
-    audio=new Audio(URL.createObjectURL(blob));
-
-  }catch(e){
-    result.innerText="❌ API Error";
+  if(!text){
+    alert("Text enter කරන්න");
+    return;
   }
+
+  result.innerText = "⏳ Generating...";
+
+  const res = await fetch(
+    "https://sinhala-ai-api.visitlanka256.workers.dev",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        text: text,
+        type: type
+      })
+    }
+  );
+
+  const data = await res.json();
+  result.innerText = data.text || data.error;
 }
+
 
 function playVoice(){
   if(!audio) return alert("Generate කරන්න");
