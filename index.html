@@ -2,154 +2,166 @@
 <!DOCTYPE html>
 <html lang="si">
 <head>
-  <meta charset="UTF-8">
-  <title>AI Sinhala Tools</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>AI Sinhala Tools</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg,#4f46e5,#9333ea);
-      min-height: 100vh; color: #111;
-    }
-    header {
-      padding: 25px; text-align: center; color: white;
-    }
-    header h1 { font-size: 26px; margin-bottom: 6px; }
-    header p { opacity: 0.9; }
-    .container {
-      background: white; max-width: 600px;
-      margin: -20px auto 30px; padding: 20px;
-      border-radius: 20px; box-shadow: 0 15px 30px rgba(0,0,0,0.2);
-    }
-    textarea {
-      width: 100%; height: 110px;
-      border-radius: 12px; border: 1px solid #ddd;
-      padding: 12px; font-size: 16px;
-    }
-    button {
-      width: 100%; margin-top: 10px;
-      padding: 14px; border-radius: 12px;
-      border: none; background: #4f46e5;
-      color: white; font-size: 16px;
-      cursor: pointer;
-    }
-    button:hover { background: #4338ca; }
-    .output {
-      margin-top: 15px; padding: 15px;
-      border-radius: 12px; background: #f1f5f9;
-      min-height: 80px; white-space: pre-wrap;
-    }
-    footer {
-      text-align: center; color: white;
-      opacity: 0.8; font-size: 13px;
-    }
-  </style>
+<!-- Material 3 Style -->
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --md-primary:#6750a4;
+  --md-secondary:#625b71;
+  --md-bg:#fef7ff;
+  --md-surface:#ffffff;
+  --md-outline:#cac4d0;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Roboto,sans-serif;
+  background:var(--md-bg);
+}
+header{
+  background:var(--md-primary);
+  color:white;
+  padding:22px;
+  text-align:center;
+  border-radius:0 0 28px 28px;
+}
+.container{
+  max-width:640px;
+  margin:-20px auto 30px;
+  background:var(--md-surface);
+  padding:20px;
+  border-radius:28px;
+  box-shadow:0 10px 25px rgba(0,0,0,.15);
+}
+textarea{
+  width:100%;
+  min-height:120px;
+  padding:14px;
+  border-radius:16px;
+  border:1px solid var(--md-outline);
+  font-size:16px;
+}
+select,button{
+  width:100%;
+  margin-top:10px;
+  padding:14px;
+  border-radius:16px;
+  border:none;
+  font-size:15px;
+}
+select{
+  border:1px solid var(--md-outline);
+}
+button{
+  background:var(--md-primary);
+  color:white;
+  cursor:pointer;
+}
+button.secondary{
+  background:var(--md-secondary);
+}
+.output{
+  margin-top:15px;
+  background:#f3edf7;
+  padding:16px;
+  border-radius:16px;
+  min-height:90px;
+  white-space:pre-wrap;
+}
+.actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+footer{
+  text-align:center;
+  font-size:13px;
+  opacity:.7;
+  margin-bottom:20px;
+}
+</style>
 </head>
 
 <body>
 
 <header>
-  <h1>🤖 AI Sinhala Tools</h1>
-  <p>සිංහල Caption, Tags, Voice & MP3</p>
+  <h2>🤖 AI Sinhala Tools</h2>
+  <p>Caption • Tags • Sinhala Voice MP3</p>
 </header>
 
 <div class="container">
-  <textarea id="prompt" placeholder="මෙහි ඔබගේ විෂයය ලියන්න..."></textarea>
 
-  <button onclick="generateCaption()">📝 Generate Caption</button>
-  <button onclick="generateTags()">🏷️ Generate Tags & Description</button>
-  <button onclick="speak()">🔊 Play Sinhala Voice</button>
-  <button onclick="downloadMP3()">⬇️ Download MP3</button>
+<textarea id="prompt" placeholder="මෙහි ඔබගේ විෂයය ලියන්න..."></textarea>
 
-  <div class="output" id="result">👉 Result මෙතන දිස්වේ...</div>
+<select id="voice">
+  <option value="male">🎙 Male Sinhala Voice</option>
+  <option value="female">🎙 Female Sinhala Voice</option>
+</select>
+
+<div class="actions">
+  <button onclick="generate('caption')">📝 Caption</button>
+  <button onclick="generate('tags')" class="secondary">🏷 Tags</button>
+</div>
+
+<div class="actions">
+  <button onclick="playVoice()">🔊 Play Voice</button>
+  <button onclick="downloadMP3()" class="secondary">⬇ MP3</button>
+</div>
+
+<div class="output" id="result">👉 Result මෙතන දිස්වේ...</div>
+
 </div>
 
 <footer>© 2025 VisitLanka256 Sketch</footer>
 
 <script>
-let audioBlob;
+const API_URL="https://sinhala-ai-api.visitlanka256.workers.dev/";
+let audio=null;
 
-// API backend
-const API_URL = "https://sinhala-ai-api.visitlanka256.workers.dev/";
+async function generate(type){
+  const text=prompt.value.trim();
+  const voice=document.getElementById("voice").value;
+  if(!text) return alert("Text එකක් ලියන්න");
 
-async function callAI(type) {
-  const text = document.getElementById("prompt").value;
-  if (!text) return alert("Text එකක් ලියන්න");
+  result.innerText="⏳ Generating...";
 
-  document.getElementById("result").innerText = "⏳ Generating...";
-
-  const res = await fetch(API_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text, type })
-  });
-
-  const data = await res.json();
-  document.getElementById("result").innerText = data.result;
-}
-
-function generateCaption() { callAI("caption"); }
-function generateTags() { callAI("tags"); }
-
-function speak() {
-  const txt = document.getElementById("result").innerText;
-  if (!txt) return alert("පළමුව result generate කරන්න");
-  const utt = new SpeechSynthesisUtterance(txt);
-  utt.lang = "si-LK";
-  speechSynthesis.speak(utt);
-
-  const audioCtx = new AudioContext();
-  const dest = audioCtx.createMediaStreamDestination();
-  const recorder = new MediaRecorder(dest.stream);
-  recorder.start();
-  utt.onend = () => recorder.stop();
-  recorder.ondataavailable = e => audioBlob = new Blob([e.data], { type: "audio/mp3" });
-}
-
-function downloadMP3() {
-  if (!audioBlob) return alert("Play voice first!");
-  const url = URL.createObjectURL(audioBlob);
-  const a = document.createElement("a");
-  a.href = url; a.download = "sinhala-voice.mp3"; a.click();
-}
-</script>
-<script>
-async function generateCaption() {
-  const inputText = document.getElementById("userText").value;
-  const outputBox = document.getElementById("result");
-
-  if (!inputText) {
-    alert("සිංහල text එකක් දාන්න");
-    return;
-  }
-
-  outputBox.innerText = "Generating...";
-
-  try {
-    const response = await fetch("https://sinhala-ai-api.visitlanka256.workers.dev/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        text: inputText,
-        type: "caption"
-      })
+  try{
+    const res=await fetch(API_URL,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({text,type,voice})
     });
 
-    const data = await response.json();
-    outputBox.innerText = data.result || "No response";
+    const data=await res.json();
+    result.innerText=data.text;
 
-  } catch (error) {
-    outputBox.innerText = "Error connecting to AI";
-    console.error(error);
+    const bytes=Uint8Array.from(atob(data.mp3),c=>c.charCodeAt(0));
+    const blob=new Blob([bytes],{type:"audio/mp3"});
+    audio=new Audio(URL.createObjectURL(blob));
+
+  }catch(e){
+    result.innerText="❌ API Error";
   }
 }
-</script>
 
-  
+function playVoice(){
+  if(!audio) return alert("Generate කරන්න");
+  audio.play();
+}
+
+function downloadMP3(){
+  if(!audio) return alert("Generate කරන්න");
+  const a=document.createElement("a");
+  a.href=audio.src;
+  a.download="sinhala-voice.mp3";
+  a.click();
+}
+</script>
 
 </body>
 </html>
